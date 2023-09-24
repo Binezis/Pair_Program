@@ -11,6 +11,10 @@ class Operation:
         self.value = 10
 
     def operation(self):
+        """
+        生成四则运算函数，调用相关函数实现生成
+        :return: None
+        """
         f_exercise = open('./Exercise.txt', 'a+', encoding='utf-8')
         f_answer = open('./Answer.txt', 'a+', encoding='utf-8')
         f_exercise.seek(0)
@@ -20,7 +24,7 @@ class Operation:
         count = 0
         while True:
             try:
-                exercise_list, answer = self.combine()
+                exercise_list, answer = self.combine()  # 控制运算符数量
             except ZeroDivisionError:  # 当0位除数 和 负数情况
                 continue
             # True表示检查后无重复
@@ -38,22 +42,23 @@ class Operation:
         f_answer.close()
 
     def combine(self):
-        # 不超过3个运算符
+        """
+        控制不超过3个运算符
+        :return: exercise_list, answer
+        """
         nums_operation = randint(1, 3)
         bracket = 0
         n1 = self.is_proper()
         op1 = four_operator()
         n2 = self.is_proper()
         exercise_list = [n1, op1, n2]
-        # 两步运算以上
-        if nums_operation >= 2:
+        if nums_operation >= 2:  # 两步运算以上
             op2 = four_operator()
             n3 = self.is_proper()
             exercise_list.append(op2)
             exercise_list.append(n3)
             bracket = randint(0, 2)
-            # 三步运算
-            if nums_operation == 3:
+            if nums_operation == 3:  # 三步运算
                 op3 = four_operator()
                 n4 = self.is_proper()
                 exercise_list.append(op3)
@@ -63,32 +68,43 @@ class Operation:
         if bracket != 0:
             exercise_list = bracket_insert(exercise_list, bracket)
         answer = get_answer(exercise_list, bracket)
-        if re.search('-', answer):  # 有负号就报错
+        if re.search('-', answer):  # 有负号抛出0异常，便于处理
             raise ZeroDivisionError("负号")
         return exercise_list, answer
 
     def is_proper(self):
-        # 是否用真分数
+        """
+        随机产生是否用真分数
+        :return: n 分数或者自然数，str类型
+        """
         flag_is_rf = randint(0, 1)
         if flag_is_rf == 1:
-            n = self.get_proper_fraction()
+            n = self.get_proper_fraction()  # 产生真分数
         else:
-            n = str(randint(0, self.value - 1))
-        # 返回的是str类型
+            n = str(randint(0, self.value - 1))  # 在-r范围内产生一个自然数
         return n
 
     def get_proper_fraction(self):
+        """
+        得到一个真分数
+        :return: real_fraction
+        """
         denominator = randint(2, self.value)
         numerator = randint(1, denominator - 1)
         random_attach = randint(0, 1)
         real_fraction = str(Fraction(numerator, denominator))
-        # 调用fraction方法生成真分数
         if random_attach != 0:
             real_fraction = str(random_attach) + "'" + real_fraction
         return real_fraction
 
 
 def is_same(orig_list, same_list):
+    """
+    判断两个式子拆分出来的是否相同
+    :param orig_list: 原式子
+    :param same_list: 待判断式子
+    :return: True or False
+    """
     nums = ''.join(orig_list).split('+|-|*|/|(|)')
     # 运算符个数
     ''.join(orig_list).split('+|-')
@@ -110,7 +126,6 @@ def is_same(orig_list, same_list):
                 if (len(orig_list) - len(nums)) != (len(string) - len(nums_copy)):
                     return False
                 else:
-
                     if len(orig_list) == 6 and len(same_list) == 6:
                         if orig_list[0] == string[4] and string[2] == orig_list[2]:
                             if orig_list[0] == same_list[4] and orig_list[2] == same_list[2]:
@@ -140,6 +155,14 @@ def is_same(orig_list, same_list):
 
 
 def check(orig_list, answer, exerciseFile, answerFile):
+    """
+    检查式子是否重复
+    :param orig_list: 原式子
+    :param answer: 答案
+    :param exerciseFile: 题目文件路径
+    :param answerFile: 答案文件路径
+    :return: True or False
+    """
     # 读取文件
     exercise_file = open(exerciseFile, "r", encoding='utf-8')
     answer_file = open(answerFile, "r", encoding='utf-8')
@@ -166,6 +189,11 @@ def check(orig_list, answer, exerciseFile, answerFile):
 
 
 def to_fraction(fraction):
+    """
+    将假分数转换为带分数
+    :param fraction: 假分数
+    :return: 带分数
+    """
     try:
         # 将字符串分割为分子和分母
         numerator, denominator = map(int, fraction.split('/'))
@@ -185,11 +213,21 @@ def to_fraction(fraction):
 
 
 def four_operator():
+    """
+    随机返回一个运算符
+    :return: 运算符
+    """
     operators = ['+', '-', 'x', '÷']
     return operators[randint(0, len(operators) - 1)]
 
 
 def bracket_insert(exercise_list, bracket):
+    """
+    在特定地方插入括号
+    :param exercise_list: 运算式
+    :param bracket: 括号位置
+    :return: exercise_list
+    """
     if bracket == 1:
         exercise_list.insert(0, '(')
         exercise_list.insert(4, ')')
@@ -208,6 +246,12 @@ def bracket_insert(exercise_list, bracket):
 
 
 def get_answer(exercise_list, bracket):
+    """
+    获得运算式的答案
+    :param exercise_list: 运算式
+    :param bracket: 括号位置
+    :return: 答案
+    """
     num_list = []
     operation_list = []
     no_list = []
@@ -236,6 +280,13 @@ def get_answer(exercise_list, bracket):
 
 
 def bracket_answer(bracket, operation_list, no_list):
+    """
+    根据拆出来的运算符和式子计算答案
+    :param bracket: 括号位置
+    :param operation_list: 操作符
+    :param no_list: 数字
+    :return: format_cal_answer
+    """
     if no_list is None:
         return
     format_cal_answer = []
@@ -272,6 +323,12 @@ def bracket_answer(bracket, operation_list, no_list):
 
 
 def out_grade(exerciseFile, answerFile):
+    """
+    判断对错，并输出
+    :param exerciseFile: 题目文件
+    :param answerFile: 答案文件
+    :return: correct_result + wrong_result
+    """
     exercise_file = open(exerciseFile, "r", encoding='utf-8')
     answer_file = open(answerFile, "r", encoding='utf-8')
     # 定义一个flag记录同行的练习和答案
@@ -338,6 +395,10 @@ def out_grade(exerciseFile, answerFile):
 
 
 def add_parm():
+    """
+    添加命令行参数
+    :return: args
+    """
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("-n", dest="sum", help="生成数量")
     argument_parser.add_argument("-r", dest="range", help="生成范围")
