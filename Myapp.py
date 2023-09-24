@@ -271,6 +271,72 @@ def bracket_answer(bracket, operation_list, no_list):
     return format_cal_answer
 
 
+def out_grade(exerciseFile, answerFile):
+    exercise_file = open(exerciseFile, "r", encoding='utf-8')
+    answer_file = open(answerFile, "r", encoding='utf-8')
+    # 定义一个flag记录同行的练习和答案
+    wrong = []
+    correct = []
+    line_flag = 0
+    # 依次对两个文件里的练习和答案校对
+    for e, a in zip(exercise_file.readlines(), answer_file.readlines()):
+
+        line_flag += 1
+        a = a.split(':')[1]
+        a = a.strip()
+        if re.search(r"'", a):
+            a_r, a_f = a.split("'")
+            real_answer = str(Fraction(a_r) + Fraction(a_f))
+        else:
+            real_answer = str(Fraction(a))
+
+        e = e.split(': ')[1]
+        e = e.split('=')[0]
+        operation_list = []
+        no_list = []
+        bracket = 0
+        pattern = re.compile(r"\d+'\d+/\d+|\d+/\d+|\d+")
+        num_list = re.findall(pattern, e)
+
+        for i in e:
+            if re.match(r'[+\-x÷]', i):
+                if i == '÷':
+                    i = '/'  # 除号转换
+                if i == 'x':
+                    i = '*'  # 乘号转换
+                operation_list.append(i)
+            elif re.match(r'\(', i):
+                bracket_before = e.index(i)
+                bracket_after = e.find(")", -2, -1)
+                if bracket_before == 0 and bracket_after == -1:
+                    bracket = 1
+                if bracket_before != 0:
+                    bracket = 2
+                if bracket_before != 0 and bracket_after == (len(e) - 2) and len(num_list) == 4:
+                    bracket = 3
+                if bracket_before == 0 and bracket_after == (len(e) - 2) and len(num_list) == 4:
+                    bracket = 4
+            else:
+                pass
+        for j in num_list:
+            if re.search(r"'", j):
+                f1, f2 = j.split("'")
+                fraction = Fraction(f1) + Fraction(f2)
+                no_list.append(fraction)
+            else:
+                no_list.append(Fraction(j))
+        # 分析得出四种情况后，计算答案与answer.txt里的答案校对
+        cal_answer = bracket_answer(bracket, operation_list, no_list)
+        if Fraction(real_answer) - Fraction(cal_answer) == 0:
+            correct.append(str(line_flag))
+        else:
+            wrong.append(str(line_flag))
+    # 处理结果，返回输出
+    correct_result = "Correct:" + str(len(correct)) + " " + "(" + ",".join(correct) + ")\n"
+    wrong_result = "Wrong:" + str(len(wrong)) + " " + "(" + ",".join(wrong) + ")"
+    return correct_result + wrong_result
+
+
 def add_parm():
     argument_parser = argparse.ArgumentParser()
     argument_parser.add_argument("-n", dest="sum", help="生成数量")
@@ -290,7 +356,9 @@ def main():
         opera.value = int(args.range)
         opera.operation()
     elif args.exercise_file and args.answer_file:
-        print("-e-a")
+        result = out_grade(args.exercise_file, args.answer_file)
+        with open('Grade.txt', 'w+') as f:
+            f.write(result)
     else:
         print("请正确输入参数!")
 
