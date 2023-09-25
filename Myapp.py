@@ -22,16 +22,20 @@ class Operation:
         f_exercise.truncate()
         f_answer.truncate()
         count = 0
+        topic = []
+        ans = []
         while True:
             try:
                 exercise_list, answer = self.combine()  # 控制运算符数量
             except ZeroDivisionError:  # 当0位除数 和 负数情况
                 continue
             # True表示检查后无重复
-            if check(exercise_list, answer, exerciseFile='Exercise.txt', answerFile='Answer.txt'):
+            if check(exercise_list, answer, topic, ans):
+                topic.append(str("".join(exercise_list)))
                 f_exercise.write("题目" + str(count + 1) + ": " + ' '.join(exercise_list) + ' =\n')
                 if re.search('/', answer):
                     d, n = answer.split('/')
+                    ans.append(answer)
                     if int(d) > int(n):
                         answer = to_fraction(answer)
                 f_answer.write("答案" + str(count + 1) + ": " + answer + '\n')
@@ -98,98 +102,52 @@ class Operation:
         return real_fraction
 
 
-def is_same(orig_list, same_list):
+def is_same(new_topic, old_topic):
     """
     判断两个式子拆分出来的是否相同
-    :param orig_list: 原式子
-    :param same_list: 待判断式子
+    :param new_topic: 原式子
+    :param old_topic: 待判断式子
     :return: True or False
     """
-    nums = ''.join(orig_list).split('+|-|*|/|(|)')
-    # 运算符个数
-    ''.join(orig_list).split('+|-')
-    print("same_list", same_list)  # TODO
-    for string in same_list:
-        if nums == string:
+    new_topic = new_topic.replace('(', '').replace(')', '').replace('x', '').replace('+', '')
+    orig = list(new_topic)
+    orig.sort()
+    new_topic = ''.join(orig)
+    for string in old_topic:
+        string = string.replace('(', '').replace(')', '').replace('x', '').replace('+', '')
+        string_list = list(string)
+        string_list.sort()
+        string = ''.join(string_list)
+        if string == new_topic:
             return True
-        else:
-            # 判断数字是否一样
-            nums_copy = string.split('+|-|*|/|(|)')
-            if len(nums) != len(nums_copy):
-                return False
-            else:
-                for i in nums:
-                    if i in nums_copy:
-                        continue
-                    else:
-                        return False
-                # 判断运算符个数是否一样
-                if (len(orig_list) - len(nums)) != (len(string) - len(nums_copy)):
-                    return False
-                else:
-                    if len(orig_list) == 6 and len(same_list) == 6:
-                        if orig_list[0] == string[4] and string[2] == orig_list[2]:
-                            if orig_list[0] == same_list[4] and orig_list[2] == same_list[2]:
-                                return True
-                            else:
-                                return False
-                        else:
-                            return False
-
-                    if len(orig_list) == 6 and len(same_list) == 8:
-                        if same_list[0] == '(':
-                            if orig_list[1] == same_list[1] or orig_list[1] == same_list[3]:
-                                return True
-
-                            else:
-                                return False
-                    if len(orig_list) == 8 and len(same_list) == 6:
-                        if orig_list[0] == '(':
-                            if same_list[1] == orig_list[1] or same_list[1] == orig_list[3]:
-                                return True
-
-                            else:
-                                return False
-
-                    if len(orig_list) == 8 and len(same_list) == 8:
-                        return True
+    return False
 
 
-def check(orig_list, answer, exerciseFile, answerFile):
+def check(new_topic, answer, topic, ans):
     """
-    检查式子是否重复
-    :param orig_list: 原式子
-    :param answer: 答案
-    :param exerciseFile: 题目文件路径
-    :param answerFile: 答案文件路径
+    检查式子是否重复,通过答案相同找出对应式子进一步检测
+    :param new_topic: 新加式子
+    :param answer: 新加式子的答案
+    :param topic: 原本式子list
+    :param ans: 原本式子答案的list
     :return: True or False
     """
-    # 读取文件
-    exercise_file = open(exerciseFile, "r", encoding='utf-8')
-    answer_file = open(answerFile, "r", encoding='utf-8')
-    # 定义一个list用来存储具有相同结果的式子
     same_list = []
     # 先判断库中是否有相同的结果
     i = 0
     j = 0
-    print("aaa1",answer_file)
-    print("readline0", exercise_file.readlines())  # TODO
-    print("readline1", answer_file.readlines())  # TODO
-    for aline in answer_file.readlines():
+    for aline in ans:
         answer = answer.strip()
-        real_answer = aline.split(':')[1]
-        real_answer = real_answer.strip()
+        real_answer = aline.strip()
         if answer == real_answer:
             i += 1
-            for eline in exercise_file.readlines():
+            for eline in topic:
                 j += 1
                 if j == i:
-                    # 提取出式子
-                    eline = eline.split(':')[1]
-                    eline = eline.split('=')[0]
-                    same_list.append(eline.strip())
+                    print(type(eline), "55")
+                    same_list.append(eline)
                     break
-    return not is_same(orig_list, same_list)
+    return not is_same(''.join(new_topic), same_list)
 
 
 def to_fraction(fraction):
@@ -201,8 +159,6 @@ def to_fraction(fraction):
     try:
         # 将字符串分割为分子和分母
         numerator, denominator = map(int, fraction.split('/'))
-        if denominator == 0:
-            return "分母不能为零"
         # 计算整数部分
         whole_part = numerator // denominator
         # 计算真分数部分的分子
@@ -335,9 +291,6 @@ def out_grade(exerciseFile, answerFile):
     """
     exercise_file = open(exerciseFile, "r", encoding='utf-8')
     answer_file = open(answerFile, "r", encoding='utf-8')
-    print("aaa1", answer_file)
-    print("readline0", exercise_file.readlines())  # TODO
-    print("readline1", answer_file.readlines())  # TODO
     # 定义一个flag记录同行的练习和答案
     wrong = []
     correct = []
