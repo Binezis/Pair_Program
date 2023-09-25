@@ -15,8 +15,8 @@ class Operation:
         生成四则运算函数，调用相关函数实现生成
         :return: None
         """
-        f_exercise = open('./Exercise.txt', 'a+', encoding='utf-8')
-        f_answer = open('./Answer.txt', 'a+', encoding='utf-8')
+        f_exercise = open('Exercise.txt', 'a+', encoding='utf-8')
+        f_answer = open('Answer.txt', 'a+', encoding='utf-8')
         f_exercise.seek(0)
         f_answer.seek(0)
         f_exercise.truncate()
@@ -28,7 +28,7 @@ class Operation:
             except ZeroDivisionError:  # 当0位除数 和 负数情况
                 continue
             # True表示检查后无重复
-            if check(exercise_list, answer, exerciseFile='./Exercise.txt', answerFile='./Answer.txt'):
+            if check(exercise_list, answer, exerciseFile='Exercise.txt', answerFile='Answer.txt'):
                 f_exercise.write("题目" + str(count + 1) + ": " + ' '.join(exercise_list) + ' =\n')
                 if re.search('/', answer):
                     d, n = answer.split('/')
@@ -52,7 +52,7 @@ class Operation:
         op1 = four_operator()
         n2 = self.is_proper()
         exercise_list = [n1, op1, n2]
-        if nums_operation >= 2:  # 两步运算以上
+        if nums_operation >= 2:  # 二步运算以上
             op2 = four_operator()
             n3 = self.is_proper()
             exercise_list.append(op2)
@@ -108,6 +108,7 @@ def is_same(orig_list, same_list):
     nums = ''.join(orig_list).split('+|-|*|/|(|)')
     # 运算符个数
     ''.join(orig_list).split('+|-')
+    print("same_list", same_list)  # TODO
     for string in same_list:
         if nums == string:
             return True
@@ -171,6 +172,9 @@ def check(orig_list, answer, exerciseFile, answerFile):
     # 先判断库中是否有相同的结果
     i = 0
     j = 0
+    print("aaa1",answer_file)
+    print("readline0", exercise_file.readlines())  # TODO
+    print("readline1", answer_file.readlines())  # TODO
     for aline in answer_file.readlines():
         answer = answer.strip()
         real_answer = aline.split(':')[1]
@@ -331,13 +335,15 @@ def out_grade(exerciseFile, answerFile):
     """
     exercise_file = open(exerciseFile, "r", encoding='utf-8')
     answer_file = open(answerFile, "r", encoding='utf-8')
+    print("aaa1", answer_file)
+    print("readline0", exercise_file.readlines())  # TODO
+    print("readline1", answer_file.readlines())  # TODO
     # 定义一个flag记录同行的练习和答案
     wrong = []
     correct = []
     line_flag = 0
     # 依次对两个文件里的练习和答案校对
     for e, a in zip(exercise_file.readlines(), answer_file.readlines()):
-
         line_flag += 1
         a = a.split(':')[1]
         a = a.strip()
@@ -346,7 +352,6 @@ def out_grade(exerciseFile, answerFile):
             real_answer = str(Fraction(a_r) + Fraction(a_f))
         else:
             real_answer = str(Fraction(a))
-
         e = e.split(': ')[1]
         e = e.split('=')[0]
         operation_list = []
