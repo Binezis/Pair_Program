@@ -144,7 +144,6 @@ def check(new_topic, answer, topic, ans):
             for eline in topic:
                 j += 1
                 if j == i:
-                    print(type(eline), "55")
                     same_list.append(eline)
                     break
     return not is_same(''.join(new_topic), same_list)
@@ -216,7 +215,6 @@ def get_answer(exercise_list, bracket):
     operation_list = []
     no_list = []
     for i in exercise_list:
-
         if re.match(r"[+\-x÷]", i):
             if i == '÷':
                 i = '/'  # 除号转换
@@ -225,8 +223,6 @@ def get_answer(exercise_list, bracket):
             operation_list.append(i)
         elif re.match(r'\d+', i):
             num_list.append(i)
-        else:
-            pass
     for j in num_list:
         if re.search(r"'", j):
             f1, f2 = j.split("'")
@@ -346,6 +342,8 @@ def out_grade(exerciseFile, answerFile):
             correct.append(str(line_flag))
         else:
             wrong.append(str(line_flag))
+    exercise_file.close()
+    answer_file.close()
     # 处理结果，返回输出
     correct_result = "Correct:" + str(len(correct)) + " " + "(" + ",".join(correct) + ")\n"
     wrong_result = "Wrong:" + str(len(wrong)) + " " + "(" + ",".join(wrong) + ")"
@@ -380,6 +378,7 @@ def main():
             f.write(result)
     else:
         print("请正确输入参数!")
+        return ValueError
 
 
 if __name__ == '__main__':
