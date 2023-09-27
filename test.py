@@ -70,6 +70,12 @@ class MyTestCase(unittest.TestCase):
         fraction_split = proper_fraction.split('/')
         self.assertLess(fraction_split[0], fraction_split[1])
 
+    @mock.patch("Myapp.add_parm")
+    def test_10000_n(self, mock_args):
+        mock_args.return_value = Namespace(answer_file=None, exercise_file=None, range=5, sum=10000)
+        main()
+        self.assertEqual(main(),None)
+
 
 if __name__ == '__main__':
     unittest.main()
