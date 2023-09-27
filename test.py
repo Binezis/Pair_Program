@@ -74,7 +74,7 @@ class MyTestCase(unittest.TestCase):
     def test_10000_n(self, mock_args):
         mock_args.return_value = Namespace(answer_file=None, exercise_file=None, range=5, sum=10000)
         main()
-        self.assertEqual(main(),None)
+        self.assertEqual(main(), None)
 
 
 if __name__ == '__main__':
