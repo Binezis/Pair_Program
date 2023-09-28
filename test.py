@@ -74,7 +74,14 @@ class MyTestCase(unittest.TestCase):
     def test_10000_n(self, mock_args):
         mock_args.return_value = Namespace(answer_file=None, exercise_file=None, range=5, sum=10000)
         main()
-        self.assertEqual(main(), None)
+        exercise_file = open("Exercise.txt", "r", encoding='utf-8')
+        exercise_lines = exercise_file.readlines()
+        answer_file = open("Answer.txt", "r", encoding='utf-8')
+        answer_lines = answer_file.readlines()
+        exercise_file.close()
+        answer_file.close()
+        self.assertEqual(len(exercise_lines), 10000)
+        self.assertEqual(len(answer_lines), 10000)
 
 
 if __name__ == '__main__':
